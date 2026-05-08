@@ -1,33 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using EventHubMvc.Data;
+using EventHubMvc.Models;
+using EventHubMvc.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using EventHubMvc.Data;
-using EventHubMvc.Models;
 
 namespace EventHubMvc.Controllers
 {
     public class EventsController : Controller
     {
+        private readonly IEventService _eventService;
         private readonly ApplicationDbContext _context;
 
-        public EventsController(ApplicationDbContext context)
+        public EventsController(IEventService eventService, ApplicationDbContext context)
         {
+            _eventService = eventService;
             _context = context;
         }
 
         // GET: Events
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? searchTerm)
         {
-            var applicationDbContext = _context.Events
-                .Include(e => e.Category)
-                .Include(e => e.Organizer)
-                .Include(e => e.Venue);
-
-            return View(await applicationDbContext.ToListAsync());
+            var events = await _eventService.SearchEventsAsync(searchTerm);
+            ViewData["CurrentFilter"] = searchTerm;
+            return View(events);
         }
 
         // GET: Events/Details/5
@@ -38,45 +34,36 @@ namespace EventHubMvc.Controllers
                 return NotFound();
             }
 
-            var @event = await _context.Events
-                .Include(e => e.Category)
-                .Include(e => e.Organizer)
-                .Include(e => e.Venue)
-                .FirstOrDefaultAsync(m => m.EventId == id);
+            var eventItem = await _eventService.GetEventByIdAsync(id.Value);
 
-            if (@event == null)
+            if (eventItem == null)
             {
                 return NotFound();
             }
 
-            return View(@event);
+            return View(eventItem);
         }
 
         // GET: Events/Create
         public IActionResult Create()
         {
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "CategoryId", "Name");
-            ViewData["OrganizerId"] = new SelectList(_context.Organizers, "OrganizerId", "Email");
-            ViewData["VenueId"] = new SelectList(_context.Venues, "VenueId", "Address");
+            LoadSelectLists();
             return View();
         }
 
         // POST: Events/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("EventId,Title,Description,Date,Price,CategoryId,VenueId,OrganizerId")] Event @event)
+        public async Task<IActionResult> Create([Bind("EventId,Title,Description,Date,Price,CategoryId,VenueId,OrganizerId")] Event eventItem)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(@event);
-                await _context.SaveChangesAsync();
+                await _eventService.CreateEventAsync(eventItem);
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "CategoryId", "Name", @event.CategoryId);
-            ViewData["OrganizerId"] = new SelectList(_context.Organizers, "OrganizerId", "Email", @event.OrganizerId);
-            ViewData["VenueId"] = new SelectList(_context.Venues, "VenueId", "Address", @event.VenueId);
-            return View(@event);
+            LoadSelectLists(eventItem);
+            return View(eventItem);
         }
 
         // GET: Events/Edit/5
@@ -87,24 +74,23 @@ namespace EventHubMvc.Controllers
                 return NotFound();
             }
 
-            var @event = await _context.Events.FindAsync(id);
-            if (@event == null)
+            var eventItem = await _eventService.GetEventByIdAsync(id.Value);
+
+            if (eventItem == null)
             {
                 return NotFound();
             }
 
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "CategoryId", "Name", @event.CategoryId);
-            ViewData["OrganizerId"] = new SelectList(_context.Organizers, "OrganizerId", "Email", @event.OrganizerId);
-            ViewData["VenueId"] = new SelectList(_context.Venues, "VenueId", "Address", @event.VenueId);
-            return View(@event);
+            LoadSelectLists(eventItem);
+            return View(eventItem);
         }
 
         // POST: Events/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("EventId,Title,Description,Date,Price,CategoryId,VenueId,OrganizerId")] Event @event)
+        public async Task<IActionResult> Edit(int id, [Bind("EventId,Title,Description,Date,Price,CategoryId,VenueId,OrganizerId")] Event eventItem)
         {
-            if (id != @event.EventId)
+            if (id != eventItem.EventId)
             {
                 return NotFound();
             }
@@ -113,28 +99,23 @@ namespace EventHubMvc.Controllers
             {
                 try
                 {
-                    _context.Update(@event);
-                    await _context.SaveChangesAsync();
+                    await _eventService.UpdateEventAsync(eventItem);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!EventExists(@event.EventId))
+                    if (!await _eventService.EventExistsAsync(eventItem.EventId))
                     {
                         return NotFound();
                     }
-                    else
-                    {
-                        throw;
-                    }
+
+                    throw;
                 }
 
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["CategoryId"] = new SelectList(_context.Categories, "CategoryId", "Name", @event.CategoryId);
-            ViewData["OrganizerId"] = new SelectList(_context.Organizers, "OrganizerId", "Email", @event.OrganizerId);
-            ViewData["VenueId"] = new SelectList(_context.Venues, "VenueId", "Address", @event.VenueId);
-            return View(@event);
+            LoadSelectLists(eventItem);
+            return View(eventItem);
         }
 
         // GET: Events/Delete/5
@@ -145,18 +126,14 @@ namespace EventHubMvc.Controllers
                 return NotFound();
             }
 
-            var @event = await _context.Events
-                .Include(e => e.Category)
-                .Include(e => e.Organizer)
-                .Include(e => e.Venue)
-                .FirstOrDefaultAsync(m => m.EventId == id);
+            var eventItem = await _eventService.GetEventByIdAsync(id.Value);
 
-            if (@event == null)
+            if (eventItem == null)
             {
                 return NotFound();
             }
 
-            return View(@event);
+            return View(eventItem);
         }
 
         // POST: Events/Delete/5
@@ -164,19 +141,32 @@ namespace EventHubMvc.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var @event = await _context.Events.FindAsync(id);
-            if (@event != null)
-            {
-                _context.Events.Remove(@event);
-            }
-
-            await _context.SaveChangesAsync();
+            await _eventService.DeleteEventAsync(id);
             return RedirectToAction(nameof(Index));
         }
 
-        private bool EventExists(int id)
+        private void LoadSelectLists(Event? eventItem = null)
         {
-            return _context.Events.Any(e => e.EventId == id);
+            ViewData["CategoryId"] = new SelectList(
+                _context.Categories,
+                "CategoryId",
+                "Name",
+                eventItem?.CategoryId
+            );
+
+            ViewData["OrganizerId"] = new SelectList(
+                _context.Organizers,
+                "OrganizerId",
+                "Email",
+                eventItem?.OrganizerId
+            );
+
+            ViewData["VenueId"] = new SelectList(
+                _context.Venues,
+                "VenueId",
+                "Address",
+                eventItem?.VenueId
+            );
         }
     }
 }
