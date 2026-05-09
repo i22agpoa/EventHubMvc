@@ -1,28 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using EventHubMvc.Models;
+using EventHubMvc.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using EventHubMvc.Data;
-using EventHubMvc.Models;
 
 namespace EventHubMvc.Controllers
 {
     public class VenuesController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IVenueService _venueService;
 
-        public VenuesController(ApplicationDbContext context)
+        public VenuesController(IVenueService venueService)
         {
-            _context = context;
+            _venueService = venueService;
         }
 
         // GET: Venues
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Venues.ToListAsync());
+            return View(await _venueService.GetAllVenuesAsync());
         }
 
         // GET: Venues/Details/5
@@ -33,8 +28,8 @@ namespace EventHubMvc.Controllers
                 return NotFound();
             }
 
-            var venue = await _context.Venues
-                .FirstOrDefaultAsync(m => m.VenueId == id);
+            var venue = await _venueService.GetVenueByIdAsync(id.Value);
+
             if (venue == null)
             {
                 return NotFound();
@@ -50,18 +45,16 @@ namespace EventHubMvc.Controllers
         }
 
         // POST: Venues/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("VenueId,Name,City,Address,Capacity")] Venue venue)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(venue);
-                await _context.SaveChangesAsync();
+                await _venueService.CreateVenueAsync(venue);
                 return RedirectToAction(nameof(Index));
             }
+
             return View(venue);
         }
 
@@ -73,17 +66,17 @@ namespace EventHubMvc.Controllers
                 return NotFound();
             }
 
-            var venue = await _context.Venues.FindAsync(id);
+            var venue = await _venueService.GetVenueByIdAsync(id.Value);
+
             if (venue == null)
             {
                 return NotFound();
             }
+
             return View(venue);
         }
 
         // POST: Venues/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("VenueId,Name,City,Address,Capacity")] Venue venue)
@@ -97,22 +90,21 @@ namespace EventHubMvc.Controllers
             {
                 try
                 {
-                    _context.Update(venue);
-                    await _context.SaveChangesAsync();
+                    await _venueService.UpdateVenueAsync(venue);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!VenueExists(venue.VenueId))
+                    if (!await _venueService.VenueExistsAsync(venue.VenueId))
                     {
                         return NotFound();
                     }
-                    else
-                    {
-                        throw;
-                    }
+
+                    throw;
                 }
+
                 return RedirectToAction(nameof(Index));
             }
+
             return View(venue);
         }
 
@@ -124,8 +116,8 @@ namespace EventHubMvc.Controllers
                 return NotFound();
             }
 
-            var venue = await _context.Venues
-                .FirstOrDefaultAsync(m => m.VenueId == id);
+            var venue = await _venueService.GetVenueByIdAsync(id.Value);
+
             if (venue == null)
             {
                 return NotFound();
@@ -139,19 +131,8 @@ namespace EventHubMvc.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var venue = await _context.Venues.FindAsync(id);
-            if (venue != null)
-            {
-                _context.Venues.Remove(venue);
-            }
-
-            await _context.SaveChangesAsync();
+            await _venueService.DeleteVenueAsync(id);
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool VenueExists(int id)
-        {
-            return _context.Venues.Any(e => e.VenueId == id);
         }
     }
 }
