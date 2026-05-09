@@ -21,6 +21,9 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IVenueRepository, VenueRepository>();
 builder.Services.AddScoped<IVenueService, VenueService>();
 
+builder.Services.AddScoped<IOrganizerRepository, OrganizerRepository>();
+builder.Services.AddScoped<IOrganizerService, OrganizerService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

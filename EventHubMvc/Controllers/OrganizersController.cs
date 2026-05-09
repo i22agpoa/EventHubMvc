@@ -1,28 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using EventHubMvc.Models;
+using EventHubMvc.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using EventHubMvc.Data;
-using EventHubMvc.Models;
 
 namespace EventHubMvc.Controllers
 {
     public class OrganizersController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IOrganizerService _organizerService;
 
-        public OrganizersController(ApplicationDbContext context)
+        public OrganizersController(IOrganizerService organizerService)
         {
-            _context = context;
+            _organizerService = organizerService;
         }
 
         // GET: Organizers
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Organizers.ToListAsync());
+            return View(await _organizerService.GetAllOrganizersAsync());
         }
 
         // GET: Organizers/Details/5
@@ -33,8 +28,8 @@ namespace EventHubMvc.Controllers
                 return NotFound();
             }
 
-            var organizer = await _context.Organizers
-                .FirstOrDefaultAsync(m => m.OrganizerId == id);
+            var organizer = await _organizerService.GetOrganizerByIdAsync(id.Value);
+
             if (organizer == null)
             {
                 return NotFound();
@@ -50,18 +45,16 @@ namespace EventHubMvc.Controllers
         }
 
         // POST: Organizers/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("OrganizerId,Name,Email")] Organizer organizer)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(organizer);
-                await _context.SaveChangesAsync();
+                await _organizerService.CreateOrganizerAsync(organizer);
                 return RedirectToAction(nameof(Index));
             }
+
             return View(organizer);
         }
 
@@ -73,17 +66,17 @@ namespace EventHubMvc.Controllers
                 return NotFound();
             }
 
-            var organizer = await _context.Organizers.FindAsync(id);
+            var organizer = await _organizerService.GetOrganizerByIdAsync(id.Value);
+
             if (organizer == null)
             {
                 return NotFound();
             }
+
             return View(organizer);
         }
 
         // POST: Organizers/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("OrganizerId,Name,Email")] Organizer organizer)
@@ -97,22 +90,21 @@ namespace EventHubMvc.Controllers
             {
                 try
                 {
-                    _context.Update(organizer);
-                    await _context.SaveChangesAsync();
+                    await _organizerService.UpdateOrganizerAsync(organizer);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!OrganizerExists(organizer.OrganizerId))
+                    if (!await _organizerService.OrganizerExistsAsync(organizer.OrganizerId))
                     {
                         return NotFound();
                     }
-                    else
-                    {
-                        throw;
-                    }
+
+                    throw;
                 }
+
                 return RedirectToAction(nameof(Index));
             }
+
             return View(organizer);
         }
 
@@ -124,8 +116,8 @@ namespace EventHubMvc.Controllers
                 return NotFound();
             }
 
-            var organizer = await _context.Organizers
-                .FirstOrDefaultAsync(m => m.OrganizerId == id);
+            var organizer = await _organizerService.GetOrganizerByIdAsync(id.Value);
+
             if (organizer == null)
             {
                 return NotFound();
@@ -139,19 +131,8 @@ namespace EventHubMvc.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var organizer = await _context.Organizers.FindAsync(id);
-            if (organizer != null)
-            {
-                _context.Organizers.Remove(organizer);
-            }
-
-            await _context.SaveChangesAsync();
+            await _organizerService.DeleteOrganizerAsync(id);
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool OrganizerExists(int id)
-        {
-            return _context.Organizers.Any(e => e.OrganizerId == id);
         }
     }
 }
