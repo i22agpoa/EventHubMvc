@@ -1,5 +1,6 @@
 ﻿using EventHubMvc.Models;
 using EventHubMvc.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,12 +16,14 @@ namespace EventHubMvc.Controllers
         }
 
         // GET: Organizers
+        [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
             return View(await _organizerService.GetAllOrganizersAsync());
         }
 
         // GET: Organizers/Details/5
+        [AllowAnonymous]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -39,6 +42,7 @@ namespace EventHubMvc.Controllers
         }
 
         // GET: Organizers/Create
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             return View();
@@ -47,6 +51,7 @@ namespace EventHubMvc.Controllers
         // POST: Organizers/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([Bind("OrganizerId,Name,Email")] Organizer organizer)
         {
             if (ModelState.IsValid)
@@ -59,6 +64,7 @@ namespace EventHubMvc.Controllers
         }
 
         // GET: Organizers/Edit/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -79,6 +85,7 @@ namespace EventHubMvc.Controllers
         // POST: Organizers/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id, [Bind("OrganizerId,Name,Email")] Organizer organizer)
         {
             if (id != organizer.OrganizerId)
@@ -109,6 +116,7 @@ namespace EventHubMvc.Controllers
         }
 
         // GET: Organizers/Delete/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -129,6 +137,7 @@ namespace EventHubMvc.Controllers
         // POST: Organizers/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             await _organizerService.DeleteOrganizerAsync(id);

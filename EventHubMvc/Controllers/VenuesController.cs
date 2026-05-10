@@ -1,5 +1,6 @@
 ﻿using EventHubMvc.Models;
 using EventHubMvc.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,12 +16,14 @@ namespace EventHubMvc.Controllers
         }
 
         // GET: Venues
+        [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
             return View(await _venueService.GetAllVenuesAsync());
         }
 
         // GET: Venues/Details/5
+        [AllowAnonymous]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -39,6 +42,7 @@ namespace EventHubMvc.Controllers
         }
 
         // GET: Venues/Create
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             return View();
@@ -47,6 +51,7 @@ namespace EventHubMvc.Controllers
         // POST: Venues/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([Bind("VenueId,Name,City,Address,Capacity")] Venue venue)
         {
             if (ModelState.IsValid)
@@ -59,6 +64,7 @@ namespace EventHubMvc.Controllers
         }
 
         // GET: Venues/Edit/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -79,6 +85,7 @@ namespace EventHubMvc.Controllers
         // POST: Venues/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id, [Bind("VenueId,Name,City,Address,Capacity")] Venue venue)
         {
             if (id != venue.VenueId)
@@ -109,6 +116,7 @@ namespace EventHubMvc.Controllers
         }
 
         // GET: Venues/Delete/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -129,6 +137,7 @@ namespace EventHubMvc.Controllers
         // POST: Venues/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             await _venueService.DeleteVenueAsync(id);
