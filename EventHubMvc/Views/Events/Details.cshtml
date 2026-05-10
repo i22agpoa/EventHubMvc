@@ -1,71 +1,77 @@
 ﻿@model EventHubMvc.Models.Event
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Event Details";
 }
 
-<h1>Details</h1>
+<section class="mb-4">
+    <h1 class="fw-bold mb-1">Event Details</h1>
+    <p class="text-muted mb-0">
+        View complete information about this event.
+    </p>
+</section>
 
-<div>
-    <h4>Event</h4>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Title)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Title)
-        </dd>
+<div class="card shadow-sm border-0">
+    <div class="card-body">
 
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Description)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Description)
-        </dd>
+        <span class="badge bg-primary mb-3">
+            @(Model.Category != null ? Model.Category.Name : "Uncategorized")
+        </span>
 
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Date)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Date)
-        </dd>
+        <h3 class="fw-bold mb-3">
+            @Model.Title
+        </h3>
 
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Price)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Price)
-        </dd>
+        <p class="text-muted mb-4">
+            @Model.Description
+        </p>
 
-        <dt class="col-sm-2">
-            Category
-        </dt>
-        <dd class="col-sm-10">
-            @(Model.Category != null ? Model.Category.Name : "")
-        </dd>
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <div class="border rounded-3 p-3 h-100">
+                    <small class="text-muted d-block">Date</small>
+                    <strong>@Model.Date.ToString("dd/MM/yyyy HH:mm")</strong>
+                </div>
+            </div>
 
-        <dt class="col-sm-2">
-            Venue
-        </dt>
-        <dd class="col-sm-10">
-            @(Model.Venue != null ? Model.Venue.Address : "")
-        </dd>
+            <div class="col-md-6">
+                <div class="border rounded-3 p-3 h-100">
+                    <small class="text-muted d-block">Price</small>
+                    <strong>@Model.Price €</strong>
+                </div>
+            </div>
 
-        <dt class="col-sm-2">
-            Organizer
-        </dt>
-        <dd class="col-sm-10">
-            @(Model.Organizer != null ? Model.Organizer.Email : "")
-        </dd>
-    </dl>
-</div>
-<div>
-    @if (User.IsInRole("Admin"))
-    {
-        <a asp-action="Edit" asp-route-id="@Model?.EventId">Edit</a>
-        <span> | </span>
-    }
+            <div class="col-md-6">
+                <div class="border rounded-3 p-3 h-100">
+                    <small class="text-muted d-block">Venue</small>
+                    <strong>@(Model.Venue != null ? Model.Venue.Address : "Not specified")</strong>
+                </div>
+            </div>
 
-    <a asp-action="Index">Back to List</a>
+            <div class="col-md-6">
+                <div class="border rounded-3 p-3 h-100">
+                    <small class="text-muted d-block">Organizer</small>
+                    <strong>@(Model.Organizer != null ? Model.Organizer.Email : "Not specified")</strong>
+                </div>
+            </div>
+        </div>
+
+        <hr />
+
+        <div class="d-flex flex-wrap gap-2">
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                Back to List
+            </a>
+
+            @if (User.IsInRole("Admin"))
+            {
+                <a asp-action="Edit"
+                       asp-route-id="@Model?.EventId"
+                       class="btn btn-outline-dark">
+                    Edit
+                </a>
+            }
+        </div>
+
+    </div>
 </div>

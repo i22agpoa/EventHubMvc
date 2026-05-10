@@ -29,3 +29,236 @@ body {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
 }
+
+:root {
+    --primary-color: #3b82f6;
+    --secondary-color: #0f172a;
+    --accent-color: #f59e0b;
+    --light-bg: #f8fafc;
+    --text-color: #1e293b;
+    --white: #ffffff;
+    --border-color: #e2e8f0;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    color: var(--text-color);
+    background-color: #ffffff;
+    line-height: 1.6;
+}
+
+.custom-navbar {
+    background: linear-gradient(90deg, #0f172a, #1e3a8a);
+}
+
+.navbar-brand {
+    letter-spacing: 0.5px;
+}
+
+.min-vh-75 {
+    min-height: 75vh;
+}
+
+.hero-section {
+    background: linear-gradient(135deg, #0f172a 0%, #2563eb 100%);
+    color: var(--white);
+    padding: 80px 0;
+}
+
+.custom-badge {
+    background-color: rgba(255, 255, 255, 0.15);
+    color: var(--white);
+    padding: 10px 16px;
+    border-radius: 30px;
+}
+
+.hero-card {
+    background-color: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    padding: 32px;
+    border-radius: 18px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.event-date {
+    color: #dbeafe;
+    font-size: 0.95rem;
+}
+
+.custom-btn {
+    background-color: var(--accent-color);
+    border: none;
+    color: #111827;
+    font-weight: bold;
+}
+
+    .custom-btn:hover {
+        background-color: #fbbf24;
+        color: #111827;
+    }
+
+.section-heading h2 {
+    font-weight: 700;
+}
+
+.light-section {
+    background-color: var(--light-bg);
+}
+
+.feature-list {
+    padding-left: 18px;
+}
+
+    .feature-list li {
+        margin-bottom: 12px;
+    }
+
+.info-panel,
+.about-card,
+.details-main-card,
+.side-info-card,
+.form-wrapper,
+.dashboard-table-wrapper,
+.dashboard-box {
+    background: var(--white);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 28px;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.page-banner {
+    background-color: var(--light-bg);
+    padding: 60px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+    .page-banner h1 {
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+
+.event-card {
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+    .event-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
+    }
+
+.category-tag {
+    display: inline-block;
+    background-color: #dbeafe;
+    color: #1d4ed8;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 20px;
+}
+
+.form-control,
+.form-select {
+    border-radius: 10px;
+    padding: 12px 14px;
+    border: 1px solid #cbd5e1;
+}
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #60a5fa;
+        box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.2);
+    }
+
+.dashboard-box {
+    text-align: center;
+}
+
+    .dashboard-box h3 {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: #1d4ed8;
+    }
+
+.status-badge {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 18px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+    .status-badge.confirmed {
+        background-color: #dcfce7;
+        color: #166534;
+    }
+
+    .status-badge.pending {
+        background-color: #fef3c7;
+        color: #92400e;
+    }
+
+.site-footer {
+    background-color: var(--secondary-color);
+    color: var(--white);
+    padding: 28px 0;
+    margin-top: 40px;
+}
+
+.brand-logo {
+    object-fit: contain;
+    border-radius: 10px;
+}
+
+.brand-text {
+    letter-spacing: 0.4px;
+    color: #ffffff;
+}
+
+.navbar-brand {
+    font-size: 1.15rem;
+}
+
+    .navbar-brand:hover {
+        opacity: 0.95;
+    }
+
+.navbar .nav-link {
+    font-weight: 500;
+    transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+    .navbar .nav-link:hover {
+        color: #fbbf24 !important;
+    }
+
+    .navbar .nav-link.active {
+        color: #fbbf24 !important;
+    }
+
+@media (max-width: 991px) {
+    .hero-section {
+        text-align: center;
+    }
+
+    .hero-card {
+        margin-top: 20px;
+    }
+}
+
+@media (max-width: 576px) {
+    .hero-section {
+        padding: 60px 0;
+    }
+
+        .hero-section h1 {
+            font-size: 2rem;
+        }
+
+    .page-banner {
+        padding: 45px 0;
+    }
+}
