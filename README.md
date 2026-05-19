@@ -144,7 +144,7 @@ Update-Database
 ## 1. Clone repository
 
 ```bash
-git clone 
+git clone https://github.com/i22agpoa/EventHubMvc
 ```
 
 ## 2. Open the project
